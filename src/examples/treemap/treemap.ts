@@ -4,11 +4,13 @@ import { formatType, handleErrors } from '../common/utils'
 import {
   Row,
   Looker,
-  VisualizationDefinition
+  VisualizationDefinition,
+  LookerChartUtils
 } from '../types/types'
 
 // Global values provided via the API
 declare var looker: Looker
+declare var LookerCharts: LookerChartUtils
 
 interface TreemapVisualization extends VisualizationDefinition {
   svg?: d3.Selection<SVGElement, {}, any, any>,
@@ -131,7 +133,13 @@ const vis: TreemapVisualization = {
       .attr('class', (d, i) => 'node depth-' + d.depth)
       .style('stroke-width', 1.5)
       .style('cursor', 'pointer')
-      .on('click', (d) => console.log(d))
+      .on('click', function (this: any, d: any) {
+      const event: object = { pageX: d3.event.pageX, pageY: d3.event.pageY }
+      LookerCharts.Utils.openDrillMenu({
+        links: d.data.links,
+        event: event
+      })
+    })
       .on('mouseenter', (d: any) => {
         const ancestors = d.ancestors()
         breadcrumb.text(
